@@ -6,7 +6,7 @@ from pathlib import Path
 
 import requests
 from lxml import etree as ET
-from lxml.html import builder as E
+from lxml.builder import E
 from lxml.html import tostring
 from readability import Document
 
@@ -49,7 +49,7 @@ def extract_article(html, url):
 
 
 def make_header(article):
-    return E.DIV(E.H1(article.title), E.A(article.url, href=article.url))
+    return E.header(E.h1(article.title), E.a(article.url, href=article.url))
 
 
 def insert_header(article):
