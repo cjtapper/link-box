@@ -1,21 +1,19 @@
 import os
 import re
+from collections import namedtuple
 from datetime import datetime
 from pathlib import Path
 
 import requests
+from lxml import etree as ET
+from lxml.html import builder as E
+from lxml.html import tostring
 from readability import Document
 
 TIMESTAMP_FORMAT = "%Y%m%dT%H%M%S"
+ROOT_DIRECTORY = os.getenv("READIT")
 
-directory = os.getenv("READIT")
-
-res = requests.get(
-    "https://arstechnica.com/tech-policy/2019/08/navy-pilot-dead-after-crash-in-star-wars-canyon-in-death-valley/"
-)
-timestamp = datetime.now()
-
-doc = Document(res.text)
+HtmlArticle = namedtuple("HtmlArticle", ["title", "content", "url"])
 
 
 def get_valid_filename(s):
@@ -33,15 +31,49 @@ def get_valid_filename(s):
     return re.sub(r"(?u)[^-\w.]", "", s)
 
 
-def filepath(doc):
-    filename = get_valid_filename(
-        timestamp.strftime(TIMESTAMP_FORMAT) + " " + doc.title()
-    )
-
-    p = Path(directory) / "unread" / (filename + ".html")
+def filepath(title, timestamp):
+    filename = get_valid_filename(timestamp.strftime(TIMESTAMP_FORMAT) + " " + title)
+    p = Path(ROOT_DIRECTORY) / "unread" / (filename + ".html")
     return p
 
 
-os.makedirs(Path(directory) / "unread", exist_ok=True)
-with open(filepath(doc), "w") as f:
-    f.write(doc.summary())
+def save(html, filepath):
+    os.makedirs(Path(ROOT_DIRECTORY) / "unread", exist_ok=True)
+    with open(filepath, "w") as f:
+        f.write(html)
+
+
+def extract_article(html, url):
+    doc = Document(html, url=url)
+    return HtmlArticle(doc.short_title(), doc.summary(), url)
+
+
+def make_header(article):
+    return E.DIV(E.H1(article.title), E.A(article.url, href=article.url))
+
+
+def insert_header(article):
+    html = ET.HTML(article.content)
+    html.find("body").insert(0, make_header(article))
+
+    return tostring(html, encoding="unicode", pretty_print=True)
+
+
+def main(url):
+    res = requests.get(url)
+    retrieved_at = datetime.now()
+
+    article = extract_article(res.text, url)
+    html = insert_header(article)
+
+    save(html, filepath(article.title, retrieved_at))
+
+
+if __name__ == "__main__":
+    from argparse import ArgumentParser
+
+    parser = ArgumentParser()
+    parser.add_argument("url", type=str, help="url to get")
+    args = parser.parse_args()
+
+    main(args.url)
