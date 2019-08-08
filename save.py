@@ -46,16 +46,17 @@ def save(html, filepath):
 
 def extract_article(html, url):
     doc = Document(html, url=url)
-    return HtmlArticle(doc.short_title(), doc.summary(), url)
+    return HtmlArticle(doc.short_title(), doc.summary(html_partial=True), url)
 
 
 def make_header(article):
     return E.header(E.h1(article.title), E.a(article.url, href=article.url))
 
 
-def insert_header(article):
-    html = ET.HTML(article.content)
-    html.find("body").insert(0, make_header(article))
+def generate_article_html(article):
+    html = E.html(
+        E.body(make_header(article), ET.HTML(article.content)),
+    )
 
     return tostring(html, encoding="unicode", pretty_print=True)
 
@@ -65,7 +66,7 @@ def main(url):
     retrieved_at = datetime.now()
 
     article = extract_article(res.text, url)
-    html = insert_header(article)
+    html = generate_article_html(article)
 
     save(html, filepath(article.title, retrieved_at))
 
