@@ -53,8 +53,13 @@ def make_header(article):
     return E.header(E.h1(article.title), E.a(article.url, href=article.url))
 
 
+def page_title(title):
+    return f"{title} | {settings.NAME}"
+
+
 def generate_article_html(article):
     html = E.html(
+        E.head(E.title(page_title(article.title))),
         E.body(make_header(article), ET.HTML(article.content)),
     )
 
