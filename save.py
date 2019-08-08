@@ -11,7 +11,7 @@ from lxml.html import tostring
 from readability import Document
 
 TIMESTAMP_FORMAT = "%Y%m%dT%H%M%S"
-ROOT_DIRECTORY = os.getenv("READIT")
+ROOT_DIRECTORY = os.getenv("LINKBOX_HOME")
 
 HtmlArticle = namedtuple("HtmlArticle", ["title", "content", "url"])
 
