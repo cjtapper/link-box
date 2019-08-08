@@ -10,8 +10,7 @@ from lxml.builder import E
 from lxml.html import tostring
 from readability import Document
 
-TIMESTAMP_FORMAT = "%Y%m%dT%H%M%S"
-ROOT_DIRECTORY = os.getenv("LINKBOX_HOME")
+import settings
 
 HtmlArticle = namedtuple("HtmlArticle", ["title", "content", "url"])
 
@@ -32,13 +31,15 @@ def get_valid_filename(s):
 
 
 def filepath(title, timestamp):
-    filename = get_valid_filename(timestamp.strftime(TIMESTAMP_FORMAT) + " " + title)
-    p = Path(ROOT_DIRECTORY) / "unread" / (filename + ".html")
+    filename = get_valid_filename(
+        timestamp.strftime(settings.TIMESTAMP_FORMAT) + " " + title
+    )
+    p = Path(settings.ROOT_DIRECTORY) / "unread" / (filename + ".html")
     return p
 
 
 def save(html, filepath):
-    os.makedirs(Path(ROOT_DIRECTORY) / "unread", exist_ok=True)
+    os.makedirs(Path(settings.ROOT_DIRECTORY) / "unread", exist_ok=True)
     with open(filepath, "w") as f:
         f.write(html)
 
