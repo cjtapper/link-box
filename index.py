@@ -13,25 +13,33 @@ class Article:
     def title(self):
         return self._title
 
-    def __init__(self, path):
+    def __init__(self, path, title):
         self._path = path
-        with open(self._path) as file:
-            html = ET.HTML(file.read())
-        self._set_title_from_html(html)
+        self._title = title
 
-    def _set_title_from_html(self, html):
+
+class ArticleFactory:
+    @classmethod
+    def from_html_file(cls, path):
+        with open(path) as file:
+            html = ET.HTML(file.read())
+        title = cls._get_title_from_html(html)
+        return Article(path, title)
+
+    @staticmethod
+    def _get_title_from_html(html):
         title = html.find("head/title")
         if title is not None:
-            self._title = title.text.partition(TITLE_DIVIDER)[0].strip()
+            return title.text.partition(TITLE_DIVIDER)[0].strip()
         else:
-            self._title = NO_TITLE
+            return NO_TITLE
 
 
 def main():
     p = Path(settings.ROOT_DIRECTORY) / "unread"
 
     files = p.glob("*.html")
-    articles = [Article(f) for f in files]
+    articles = [ArticleFactory.from_html_file(f) for f in files]
     for article in articles:
         print(article.title)
 
