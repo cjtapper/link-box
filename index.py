@@ -14,6 +14,18 @@ class Article:
     def title(self):
         return self._title
 
+    @property
+    def path(self):
+        return self._path
+
+    @property
+    def saved_at(self):
+        return self._saved_at
+
+    @property
+    def source_url(self):
+        return self._source_url
+
     def __init__(self, path, title, saved_at, source_url):
         self._path = path
         self._title = title
@@ -58,7 +70,7 @@ def main():
     files = p.glob("*.html")
     articles = [ArticleFactory.from_html_file(f) for f in files]
     for article in articles:
-        print(article.title, article._saved_at, article._path, article._source_url)
+        print(article.title, article.saved_at, article.path, article.source_url)
 
 
 if __name__ == "__main__":
