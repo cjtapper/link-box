@@ -14,10 +14,11 @@ class Article:
     def title(self):
         return self._title
 
-    def __init__(self, path, title, saved_at):
+    def __init__(self, path, title, saved_at, source_url):
         self._path = path
         self._title = title
         self._saved_at = saved_at
+        self._source_url = source_url
 
 
 class ArticleFactory:
@@ -27,7 +28,8 @@ class ArticleFactory:
             html = ET.HTML(file.read())
         title = cls._get_title_from_html(html)
         saved_at = cls._get_timestamp_from_filename(path)
-        return Article(path, title, saved_at)
+        source_url = cls._get_source_url(html)
+        return Article(path, title, saved_at, source_url)
 
     @staticmethod
     def _get_title_from_html(html):
@@ -41,6 +43,14 @@ class ArticleFactory:
     def _get_timestamp_from_filename(path):
         return datetime.strptime(path.stem.partition("_")[0], settings.TIMESTAMP_FORMAT)
 
+    @staticmethod
+    def _get_source_url(html):
+        link = html.find("body/header/a")
+        if link is None:
+            return None
+        else:
+            return link.get("href")
+
 
 def main():
     p = Path(settings.ROOT_DIRECTORY) / "unread"
@@ -48,7 +58,7 @@ def main():
     files = p.glob("*.html")
     articles = [ArticleFactory.from_html_file(f) for f in files]
     for article in articles:
-        print(article.title, article._saved_at, article._path)
+        print(article.title, article._saved_at, article._path, article._source_url)
 
 
 if __name__ == "__main__":
