@@ -25,3 +25,7 @@ class Article(Base):
     title = Column(String, nullable=False)
     source_url = Column(String, nullable=False)
     html = Column(String, nullable=False)
+
+
+def init():
+    Base.metadata.create_all(engine)
