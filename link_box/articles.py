@@ -1,11 +1,15 @@
 import requests
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, url_for
 
 from . import database as db
 from .database import Article
 from .save import extract_article
 
 bp = Blueprint("articles", __name__, url_prefix="/articles")
+
+Article.url_for = lambda article: url_for(
+    "articles.show_article", article_id=article.id
+)
 
 
 @bp.route("/save", methods=("GET", "POST"))
