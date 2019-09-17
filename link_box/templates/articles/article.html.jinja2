@@ -3,5 +3,8 @@
 {% block title %}{{ article.title }}{% endblock %}
 
 {% block content %}
+  <h1>{{ article.title }}</h1>
+  Source: <a href="{{ article.source_url }}">{{ article.source_url }}</a><br>
+  Fetched: {{ article.created }}
   {{ article.html }}
 {% endblock %}
