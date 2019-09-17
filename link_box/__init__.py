@@ -2,7 +2,7 @@ import os
 
 from flask import Flask
 
-from .database import Session as db_session
+from . import database as db
 
 
 def create_app():
@@ -11,9 +11,15 @@ def create_app():
 
     _create_instance_dir(app)
 
+    db.init(app)
+
+    @app.cli.command("init-db")
+    def create_database():
+        db.create()
+
     @app.teardown_appcontext
     def shutdown_session(exception=None):
-        db_session.remove()
+        db.session.remove()
 
     @app.route("/")
     def hello():
