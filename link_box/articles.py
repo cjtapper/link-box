@@ -29,3 +29,10 @@ def save():
 @bp.route("/", methods=("GET",))
 def index():
     return render_template("articles/index.html.jinja2", articles=Article.query.all())
+
+
+@bp.route("/<int:article_id>", methods=("GET",))
+def show_article(article_id):
+    return render_template(
+        "articles/article.html.jinja2", article=Article.query.get(article_id)
+    )
