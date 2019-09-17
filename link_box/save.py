@@ -10,7 +10,7 @@ from lxml.builder import E
 from lxml.html import tostring
 from readability import Document
 
-import settings
+from . import settings
 
 HtmlArticle = namedtuple("HtmlArticle", ["title", "content", "url"])
 

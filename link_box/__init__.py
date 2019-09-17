@@ -21,9 +21,9 @@ def create_app():
     def shutdown_session(exception=None):
         db.session.remove()
 
-    @app.route("/")
-    def hello():
-        return "Hello World"
+    from . import articles
+
+    app.register_blueprint(articles.bp)
 
     return app
 
